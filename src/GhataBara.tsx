@@ -11,16 +11,15 @@ export function GhataBara(){
  const [selected,setSelected]=useState<number[]>([])
  const [error,setError]=useState('')
  const [rules,setRules]=useState(false)
- const started=useRef(Date.now()),reported=useRef(false)
+ const reported=useRef(false)
  const moves=useMemo(()=>legalMoves(game),[game])
  const candidates=useMemo(()=>moves.filter(m=>m.ids.some(id=>selected.includes(id))),[moves,selected])
  useEffect(()=>{localStorage.setItem(storageKey,serialize(game))},[game])
- useEffect(()=>{if(game.winner!==null&&!reported.current){reported.current=true;void started.current}},[game.winner,onFinish])
  const commit=(next:State)=>{setGame(next);setSelected([]);setError('')}
  const doRoll=()=>{try{const a=face(),b=face();setDice([a,b]);commit(roll(game,a,b))}catch(e){setError(String(e))}}
  const doMove=(m:Move)=>{try{commit(move(game,m.ids,m.chunkIndices))}catch(e){setError(String(e))}}
  const choose=(ids:number[])=>{setSelected(ids);setError('')}
- const newGame=()=>{if(!window.confirm('Start a new game and clear the saved match?'))return;reported.current=false;started.current=Date.now();setDice(null);commit(initial())}
+ const newGame=()=>{if(!window.confirm('Start a new game and clear the saved match?'))return;reported.current=false;setDice(null);commit(initial())}
  const cells=Array.from({length:25},(_,i)=>[Math.floor(i/5),i%5] as const)
  return <div className="mx-auto max-w-5xl space-y-5 text-white">
   <div className="flex flex-wrap justify-between gap-3 items-center"><div><h2 className="text-3xl font-black">Ghata Bara</h2><p className="text-sm opacity-70">Four players · two long dice · six pawns each · local pass-and-play</p></div><div className="flex gap-2"><button className="rounded-xl border border-white/30 px-4 py-2" onClick={()=>setRules(!rules)}>Rules</button><button className="rounded-xl border border-white/30 px-4 py-2" onClick={newGame}>New match</button></div></div>
